@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1C0B14">
+<title>Ljubim da pukne</title>
+<meta name="description" content="Ljubim da pukne je rođendanska igrica u pregledaču: skupljaj poljupce, poklončiće i bombone, pa duvaj svećice na torti. Poklon Ivanu Paniću od WebGlow Studija.">
+<meta name="keywords" content="igrica, Ljubim da pukne, Ivan Panić, rođendan, WebGlow Studio, igrica u pregledaču">
+<meta name="author" content="WebGlow Studio">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://webglowstudio.github.io/Ljubimdapukne/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="sr_RS">
+<meta property="og:site_name" content="WebGlow Studio">
+<meta property="og:title" content="Ljubim da pukne – rođendanska igrica za Ivana">
+<meta property="og:description" content="Skupljaj poljupce, poklončiće i bombone. Kad se srce napuni — pukne! Pa duvaj svećice na torti.">
+<meta property="og:url" content="https://webglowstudio.github.io/Ljubimdapukne/">
+<meta property="og:image" content="https://webglowstudio.github.io/Ljubimdapukne/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ljubim da pukne – rođendanska igrica za Ivana">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ljubim da pukne – rođendanska igrica za Ivana">
+<meta name="twitter:description" content="Skupljaj poljupce, poklončiće i bombone. Kad se srce napuni — pukne!">
+<meta name="twitter:image" content="https://webglowstudio.github.io/Ljubimdapukne/og-image.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32x32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"Ljubim da pukne","url":"https://webglowstudio.github.io/Ljubimdapukne/","inLanguage":"sr","description":"Rođendanska igrica u pregledaču: skupljaj poljupce, poklončiće i bombone, pa duvaj svećice na torti.","gamePlatform":"Web browser","genre":"Arcade","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"author":{"@type":"Organization","name":"WebGlow Studio","url":"https://webglowstudio.github.io/Webglowstudioportfolio/"}}
+</script>
+</head>
+<body>
+<div id="app">
+  <header class="chrome">
+    <div class="brand">
+      <img src="favicon.svg" width="28" height="28" alt="">
+      <span>Ljubim da pukne</span>
+    </div>
+    <button type="button" id="btn-mute" class="icon-btn" aria-pressed="false" aria-label="Utišaj zvuk" title="Zvuk">
+      <svg id="icon-on" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M4 9v6h3l5 4V5L7 9H4zm11.5 3a3.5 3.5 0 0 0-1.8-3.1v6.2A3.5 3.5 0 0 0 15.5 12zM14 4.2v1.7a6.5 6.5 0 0 1 0 12.2v1.7a8.2 8.2 0 0 0 0-15.6z"/></svg>
+      <svg id="icon-off" viewBox="0 0 24 24" width="22" height="22" hidden aria-hidden="true"><path fill="currentColor" d="M4 9v6h3l5 4V5L7 9H4zm16.5 3 2-2-1.1-1.1-2 2-2-2-1.1 1.1 2 2-2 2 1.1 1.1 2-2 2 2 1.1-1.1-2-2z"/></svg>
+    </button>
+  </header>
+
+  <div id="stage">
+    <canvas id="game" width="420" height="780" aria-label="Igra Ljubim da pukne"></canvas>
+
+    <div id="hud" hidden>
+      <div class="hud-left">
+        <span id="hud-round">Kolo 1</span>
+        <span id="hud-loot" aria-label="Poklončići i bombone">🎁 0 &nbsp; 🍬 0</span>
+      </div>
+      <div class="hud-right">
+        <span id="hud-score">0</span>
+        <button type="button" id="btn-menu" class="text-btn">Meni</button>
+      </div>
+    </div>
+
+    <section id="screen-title" class="screen active" aria-labelledby="t-title">
+      <p class="eyebrow">Za Ivana · 40. rođendan</p>
+      <h1 id="t-title">Ljubim da pukne</h1>
+      <p class="lead">Skupljaj poljupce da napuniš srce. Kad se napuni — pukne! Usput hvataj poklončiće i bombone, a kišu i limune zaobiđi.</p>
+      <div class="actions">
+        <button type="button" id="btn-play" class="btn primary">Igraj</button>
+      </div>
+      <p class="help">Na telefonu: prevuci prstom da hvataš.<br>Na računaru: miš ili strelice. Esc za pauzu.</p>
+    </section>
+
+    <section id="screen-pause" class="screen dim" hidden aria-labelledby="p-title">
+      <h2 id="p-title">Pauza</h2>
+      <div class="actions">
+        <button type="button" id="btn-resume" class="btn primary">Nastavi</button>
+        <button type="button" id="btn-restart" class="btn">Igraj ispočetka</button>
+        <button type="button" id="btn-pause-home" class="btn">Na početak</button>
+      </div>
+    </section>
+
+    <section id="screen-cake" class="screen cake-ui" hidden aria-labelledby="c-title">
+      <h2 id="c-title">Duvaj svećice!</h2>
+      <p class="lead" id="cake-msg">Drži prst ili tapkaj da ugasiš 40.</p>
+    </section>
+
+    <section id="screen-end" class="screen party" hidden aria-labelledby="e-title">
+      <p class="eyebrow">40. rođendan</p>
+      <h2 id="e-title">Srećan rođendan, Ivane! 🎉</h2>
+      <p class="lead" id="end-msg">Srce je puklo, svećice su se ugasile, a ti si skupio sav slatkiš.</p>
+      <p class="stats" id="end-stats"></p>
+      <div class="actions">
+        <button type="button" id="btn-end-again" class="btn primary">Igraj ponovo</button>
+      </div>
+    </section>
+  </div>
+
+  <footer class="foot">
+    <a href="https://webglowstudio.github.io/Webglowstudioportfolio/">Napravio WebGlow Studio</a>
+  </footer>
+</div>
+<script src="game.js"></script>
+</body>
+</html>
