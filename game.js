@@ -6,10 +6,10 @@
   const ctx = canvas.getContext("2d", { alpha: false });
   const stage = $("stage");
   const STORE_KEY = "ljubim-da-pukne-v1";
-  const TOTAL_ROUNDS = 4;
-  const HEART_KISS = 14;
-  const HEART_RAIN = -10;
-  const HEART_LEMON = -12;
+  const TOTAL_ROUNDS = 3;
+  const HEART_KISS = 34;
+  const HEART_RAIN = -4;
+  const HEART_LEMON = -5;
   const PTS = { kiss: 10, gift: 25, candy: 15 };
 
   const store = { muted: false };
@@ -398,12 +398,12 @@
   function spawnItem() {
     const r = state.round;
     const roll = Math.random();
-    const bad = 0.07 + r * 0.035;
+    const bad = 0.04 + r * 0.015;
     let type = "kiss";
-    if (roll < 0.11) type = "gift";
-    else if (roll < 0.28) type = "candy";
-    else if (roll < 0.28 + bad * 0.5) type = "rain";
-    else if (roll < 0.28 + bad) type = "lemon";
+    if (roll < 0.09) type = "gift";
+    else if (roll < 0.20) type = "candy";
+    else if (roll < 0.20 + bad * 0.5) type = "rain";
+    else if (roll < 0.20 + bad) type = "lemon";
     const pad = 36 * S;
     items.push({
       type,
@@ -513,6 +513,7 @@
   }
 
   function onPointerDown(e) {
+    if (e.target.closest("button, a, input")) return;
     if (state.mode === "pause") return;
     pointer.down = true;
     pointer.id = e.pointerId;
@@ -573,6 +574,16 @@
   $("btn-restart").addEventListener("click", () => { ensureAudio(); startGame(); });
   $("btn-pause-home").addEventListener("click", goTitle);
   $("btn-menu").addEventListener("click", goPause);
+  function skipToCake() {
+    if (state.mode === "cake" || state.mode === "end" || state.mode === "title") return;
+    ensureAudio();
+    items.length = 0;
+    parts.length = 0;
+    popups.length = 0;
+    goCake();
+  }
+  $("btn-skip").addEventListener("click", (e) => { e.stopPropagation(); skipToCake(); });
+  $("btn-skip-pause").addEventListener("click", (e) => { e.stopPropagation(); skipToCake(); });
   $("btn-end-again").addEventListener("click", () => { ensureAudio(); startGame(); });
   $("btn-mute").addEventListener("click", () => {
     ensureAudio();
@@ -1013,7 +1024,7 @@
 
   function drawIntro(c) {
     if (state.mode !== "intro") return;
-    const a = state.introT < 0.2 ? state.introT / 0.2 : (state.introT > 0.85 ? (1.1 - state.introT) / 0.25 : 1);
+    const a = state.introT < 0.15 ? state.introT / 0.15 : (state.introT > 0.5 ? (0.75 - state.introT) / 0.25 : 1);
     c.save();
     c.globalAlpha = Math.max(0, a);
     c.textAlign = "center";
@@ -1046,7 +1057,7 @@
 
     if (state.mode === "intro") {
       state.introT += dt;
-      if (state.introT >= 1.05) {
+      if (state.introT >= 0.7) {
         state.mode = "play";
         state.spawnT = 0.15;
       }
@@ -1067,7 +1078,7 @@
     }
 
     if (state.mode === "play") {
-      const interval = Math.max(0.32, 0.78 - state.round * 0.08);
+      const interval = Math.max(0.22, 0.48 - state.round * 0.06);
       state.spawnT -= dt;
       if (state.spawnT <= 0) {
         spawnItem();
@@ -1103,7 +1114,7 @@
 
     if (state.mode === "burst") {
       state.burstT += dt;
-      if (state.burstT > 1.35) {
+      if (state.burstT > 0.95) {
         state.heart = 0;
         items.length = 0;
         if (state.round >= TOTAL_ROUNDS) goCake();
@@ -1242,6 +1253,7 @@
     setAutoPlay(v) { autoPlay = !!v; },
     moveTo(x) { pointer.follow = true; pointer.x = x; catcher.x = x; },
     blow() { if (state.mode === "cake") { state.blowHeld = true; state.blowAcc += 0.5; } },
-    start: startGame
+    start: startGame,
+    skipToCake
   };
 })();

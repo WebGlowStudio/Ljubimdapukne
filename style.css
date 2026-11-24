@@ -174,3 +174,9 @@ h2{font-size:clamp(1.6rem,6vw,2.4rem);line-height:1.15;max-width:18ch}
 }
 .foot a{color:var(--muted);text-decoration:none}
 .foot a:hover{color:var(--gold)}
+
+#btn-skip,#btn-skip-pause{border-color:var(--gold);color:var(--gold)}
+#btn-skip{font-size:.78rem;padding:5px 9px;white-space:nowrap}
+@media (max-width:360px){
+  #btn-skip{font-size:.7rem;padding:5px 7px}
+}
