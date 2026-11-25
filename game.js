@@ -455,7 +455,6 @@
     const hy = 88 * S + 20;
     explode(hx, hy, 70, ["#FF5A7A", "#F0C75E", "#FBF3E8", "#FF8FAB", "#E23D62", "#7EC8E3"], 340);
     shockwave();
-    addPopup(hx, hy + 50 * S, "PUKNE!", "#FBF3E8");
   }
 
   function goCake() {
@@ -1077,12 +1076,58 @@
       const a = Math.max(0, p.life / 0.8);
       c.globalAlpha = a;
       c.fillStyle = p.color;
-      c.font = "700 " + (p.text.indexOf("PUKNE") >= 0 ? 42 * S : 18 * S) + "px Jost, sans-serif";
-      if (p.text.indexOf("PUKNE") >= 0) {
-        c.font = "600 " + 54 * S + "px 'Playfair Display', Georgia, serif";
-      }
+      c.font = "700 " + 18 * S + "px Jost, sans-serif";
       c.fillText(p.text, p.x, p.y);
     }
+    c.restore();
+  }
+
+  function drawBurstTitle(c) {
+    if (state.mode !== "burst") return;
+    const t = state.burstT;
+    const popD = 0.22;
+    let scale, alpha;
+    if (t < popD) {
+      const k = t / popD;
+      const c1 = 1.70158;
+      const c3 = c1 + 1;
+      scale = 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2);
+      alpha = Math.min(1, k * 2.2);
+    } else if (t < 0.95) {
+      scale = 1 + Math.sin((t - popD) * 10) * 0.045;
+      alpha = 1;
+    } else {
+      scale = 1;
+      alpha = Math.max(0, 1 - (t - 0.95) / 0.25);
+    }
+    if (alpha <= 0) return;
+    const text = "Ljubim da pukne!";
+    const maxW = (W - 36 * S) / 1.22;
+    let size = 40 * S;
+    c.save();
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.font = "600 " + size + "px 'Playfair Display', Georgia, serif";
+    let width = c.measureText(text).width;
+    if (width > maxW) {
+      size *= maxW / width;
+      c.font = "600 " + size + "px 'Playfair Display', Georgia, serif";
+    }
+    const x = W / 2;
+    const y = Math.max(H * 0.36, 150 * S) + Math.sin(Math.min(t, 1) * 9) * 5 * S;
+    c.translate(x, y);
+    c.scale(scale, scale);
+    c.globalAlpha = alpha;
+    c.lineJoin = "round";
+    c.miterLimit = 2;
+    c.lineWidth = Math.max(6, size * 0.16);
+    c.strokeStyle = "rgba(28,11,20,0.88)";
+    c.strokeText(text, 0, 0);
+    c.fillStyle = "#FBF3E8";
+    c.fillText(text, 0, 0);
+    c.lineWidth = Math.max(1.5, size * 0.035);
+    c.strokeStyle = "rgba(240,199,94,0.9)";
+    c.strokeText(text, 0, 0);
     c.restore();
   }
 
@@ -1180,7 +1225,7 @@
 
     if (state.mode === "burst") {
       state.burstT += dt;
-      if (state.burstT > 0.95) {
+      if (state.burstT > 1.2) {
         state.heart = 0;
         items.length = 0;
         if (state.round >= TOTAL_ROUNDS) goCake();
@@ -1270,6 +1315,7 @@
     }
     drawParts(c);
     drawPopups(c);
+    drawBurstTitle(c);
     drawIntro(c);
     c.restore();
   }
