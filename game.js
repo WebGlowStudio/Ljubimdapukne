@@ -5,6 +5,13 @@
   const canvas = $("game");
   const ctx = canvas.getContext("2d", { alpha: false });
   const stage = $("stage");
+  const ivanIdle = new Image();
+  const ivanEat = new Image();
+  ivanIdle.src = "img/ivan-idle.png";
+  ivanEat.src = "img/ivan-eat.png";
+  const IVAN_H = 236;
+  const IVAN_MOUTH = 0.51;
+  const EAT_MS = 0.30;
   const STORE_KEY = "ljubim-da-pukne-v1";
   const TOTAL_ROUNDS = 3;
   const HEART_KISS = 34;
@@ -268,7 +275,7 @@
     pausedFrom: "play"
   };
 
-  const catcher = { x: 210, y: 0, squash: 0, flash: 0 };
+  const catcher = { x: 210, y: 0, squash: 0, flash: 0, eatT: 0 };
   const items = [];
   const parts = [];
   const popups = [];
@@ -335,6 +342,7 @@
     catcher.x = W / 2;
     catcher.squash = 0;
     catcher.flash = 0;
+    catcher.eatT = 0;
     updateHud();
   }
 
@@ -477,18 +485,21 @@
   function catchItem(it) {
     catcher.squash = 1;
     if (it.type === "kiss") {
+      catcher.eatT = EAT_MS;
       state.score += PTS.kiss * state.round;
       fillHeart(HEART_KISS);
       sfxKiss();
       addPopup(it.x, it.y, "Mwah + " + (PTS.kiss * state.round), "#FF8FAB");
       explode(it.x, it.y, 8, ["#FF5A7A", "#FBF3E8"], 140);
     } else if (it.type === "gift") {
+      catcher.eatT = EAT_MS;
       state.gifts += 1;
       state.score += PTS.gift;
       sfxGift();
       addPopup(it.x, it.y, "+ " + PTS.gift + " 🎁", "#F0C75E");
       explode(it.x, it.y, 8, ["#F0C75E", "#E23D62"], 140);
     } else if (it.type === "candy") {
+      catcher.eatT = EAT_MS;
       state.candies += 1;
       state.score += PTS.candy;
       sfxCandy();
@@ -657,6 +668,59 @@
     c.lineWidth = 2.4 * S;
     c.stroke();
     c.restore();
+  }
+
+
+  function ivanReady(img) {
+    return img && img.complete && img.naturalWidth > 0;
+  }
+
+  function ivanGeo() {
+    const eating = catcher.eatT > 0 && ivanReady(ivanEat);
+    const img = eating ? ivanEat : (ivanReady(ivanIdle) ? ivanIdle : null);
+    const h = IVAN_H * S;
+    const w = img ? h * (img.naturalWidth / img.naturalHeight) : h * 0.5;
+    const bottom = H - 4 * S;
+    const top = bottom - h;
+    const mouthY = top + h * IVAN_MOUTH;
+    return { img, eating, w, h, top, bottom, mouthY };
+  }
+
+  function drawCatcher(c) {
+    const geo = ivanGeo();
+    if (!geo.img) {
+      drawLips(c, catcher.x, catcher.y, 108 * S, catcher.squash, catcher.flash);
+      return;
+    }
+    const t = geo.eating ? (1 - catcher.eatT / EAT_MS) : 0;
+    const bounce = geo.eating ? Math.sin(Math.min(1, t) * Math.PI) * 18 * S : 0;
+    const flail = geo.eating ? Math.sin(t * Math.PI * 8) * 0.16 : 0;
+    const pulse = geo.eating ? 1 + Math.sin(t * Math.PI) * 0.07 : 1;
+    const flap = geo.eating ? 1 + Math.sin(t * Math.PI * 8) * 0.05 : 1;
+    c.save();
+    c.translate(catcher.x, geo.bottom - bounce);
+    c.rotate(flail);
+    c.scale(pulse * flap, pulse);
+    if (catcher.flash > 0) {
+      c.shadowColor = "rgba(255,40,70,0.85)";
+      c.shadowBlur = 22 * S;
+    }
+    c.drawImage(geo.img, -geo.w / 2, -geo.h, geo.w, geo.h);
+    c.restore();
+    if (catcher.flash > 0) {
+      c.save();
+      c.translate(catcher.x, geo.bottom - bounce);
+      c.rotate(flail);
+      c.scale(pulse * flap, pulse);
+      c.globalAlpha = 0.32 * catcher.flash;
+      c.fillStyle = "#E23D62";
+      // soft tint via overlapping silhouette: draw a rounded rect over the torso/head
+      c.beginPath();
+      c.ellipse(0, -geo.h * 0.52, geo.w * 0.28, geo.h * 0.28, 0, 0, Math.PI * 2);
+      c.fill();
+      c.globalAlpha = 1;
+      c.restore();
+    }
   }
 
   function drawLips(c, x, y, w, squash, flash) {
@@ -1043,15 +1107,17 @@
     state.heartPulse = Math.max(0, state.heartPulse - dt * 3);
     catcher.squash = Math.max(0, catcher.squash - dt * 4);
     catcher.flash = Math.max(0, catcher.flash - dt * 2.2);
+    if (catcher.eatT > 0) catcher.eatT = Math.max(0, catcher.eatT - dt);
     state.blowSfxT = Math.max(0, state.blowSfxT - dt);
 
-    catcher.y = H - 64 * S;
+    const geo = ivanGeo();
+    catcher.y = geo.mouthY;
     const speed = 520 * S;
     if (state.mode === "play" || state.mode === "intro" || state.mode === "burst") {
       if (keys.left) catcher.x -= speed * dt;
       if (keys.right) catcher.x += speed * dt;
       if (pointer.follow) catcher.x += (pointer.x - catcher.x) * Math.min(1, dt * 14);
-      const hw = 50 * S;
+      const hw = 58 * S;
       catcher.x = Math.max(hw, Math.min(W - hw, catcher.x));
     }
 
@@ -1097,11 +1163,11 @@
           it.x += Math.sin(time * 2 + it.wob) * it.amp * dt;
         }
         it.rot += it.vr * dt;
-        const cw = 96 * S;
-        const ch = 36 * S;
+        const cw = 92 * S;
+        const ch = 56 * S;
         const hit = !it.flying && state.mode === "play" &&
-          it.y + it.r * 0.3 > catcher.y - ch * 0.7 &&
-          it.y - it.r < catcher.y + ch * 0.5 &&
+          it.y + it.r * 0.3 > catcher.y - ch * 0.75 &&
+          it.y - it.r < catcher.y + ch * 0.55 &&
           Math.abs(it.x - catcher.x) < cw * 0.5 + it.r * 0.3;
         if (hit) {
           catchItem(it);
@@ -1197,7 +1263,7 @@
     if (state.mode === "play" || state.mode === "intro" || state.mode === "burst" || state.mode === "pause") {
       drawMeter(c);
       items.forEach((it) => drawItem(c, it));
-      drawLips(c, catcher.x, catcher.y, 108 * S, catcher.squash, catcher.flash);
+      drawCatcher(c);
     }
     if (state.mode === "cake" || state.mode === "end") {
       // cake already drawn
@@ -1246,6 +1312,7 @@
         items: items.map((it) => ({ type: it.type, x: it.x, y: it.y, r: it.r })),
         catcherX: catcher.x,
         catcherY: catcher.y,
+        eatT: catcher.eatT,
         timeScale
       };
     },
@@ -1254,6 +1321,7 @@
     moveTo(x) { pointer.follow = true; pointer.x = x; catcher.x = x; },
     blow() { if (state.mode === "cake") { state.blowHeld = true; state.blowAcc += 0.5; } },
     start: startGame,
-    skipToCake
+    skipToCake,
+    eat() { catcher.eatT = EAT_MS; }
   };
 })();
