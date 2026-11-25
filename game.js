@@ -9,7 +9,7 @@
   const ivanEat = new Image();
   ivanIdle.src = "img/ivan-idle.png";
   ivanEat.src = "img/ivan-eat.png";
-  const IVAN_H = 236;
+  const IVAN_H = 170;
   const IVAN_MOUTH = 0.51;
   const EAT_MS = 0.30;
   const STORE_KEY = "ljubim-da-pukne-v1";
@@ -967,9 +967,9 @@
     c.fill();
 
     const tiers = [
-      { y: baseY - 16 * S, w: u * 0.82, h: 44 * S, col: "#FF8FAB", top: "#FFD0DA" },
-      { y: baseY - 16 * S - 44 * S, w: u * 0.62, h: 36 * S, col: "#FBF3E8", top: "#FFF" },
-      { y: baseY - 16 * S - 80 * S, w: u * 0.42, h: 28 * S, col: "#FF5A7A", top: "#FFB0C0" }
+      { y: baseY - 16 * S, w: u * 0.82, h: 44 * S, col: "#5FBF6B", top: "#C5EFC8" },
+      { y: baseY - 16 * S - 44 * S, w: u * 0.62, h: 36 * S, col: "#D8F5D4", top: "#F3FBF1" },
+      { y: baseY - 16 * S - 80 * S, w: u * 0.42, h: 28 * S, col: "#3FAE5E", top: "#A8E4B0" }
     ];
     tiers.forEach((t) => {
       c.fillStyle = t.col;
@@ -1117,7 +1117,7 @@
       if (keys.left) catcher.x -= speed * dt;
       if (keys.right) catcher.x += speed * dt;
       if (pointer.follow) catcher.x += (pointer.x - catcher.x) * Math.min(1, dt * 14);
-      const hw = 58 * S;
+      const hw = 42 * S;
       catcher.x = Math.max(hw, Math.min(W - hw, catcher.x));
     }
 
@@ -1163,8 +1163,8 @@
           it.x += Math.sin(time * 2 + it.wob) * it.amp * dt;
         }
         it.rot += it.vr * dt;
-        const cw = 92 * S;
-        const ch = 56 * S;
+        const cw = 66 * S;
+        const ch = 40 * S;
         const hit = !it.flying && state.mode === "play" &&
           it.y + it.r * 0.3 > catcher.y - ch * 0.75 &&
           it.y - it.r < catcher.y + ch * 0.55 &&
